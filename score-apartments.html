@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Hledač bytů Praha - V0.1</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f4f6;
+    padding: 20px;
+}
+
+h1 {
+    color: #1f2937;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.score {
+    font-size: 28px;
+    color: green;
+    font-weight: bold;
+}
+
+.rejected {
+    border-left: 6px solid red;
+}
+
+.accepted {
+    border-left: 6px solid green;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Hledač bytů Praha V0.1</h1>
+
+<div id="results"></div>
+
+<script>
+
+const apartments = [
+
+{
+id: 1,
+title: "Špitálská, Praha 9",
+price: 7790000,
+area: 57,
+construction: "cihla",
+layout: "2+kk",
+cellar: true,
+balcony: false,
+elevator: false,
+metro: 198,
+tram: 69
+},
+
+{
+id: 2,
+title: "Sousedíkova, Praha 9",
+price: 9360000,
+area: 59,
+construction: "cihla",
+layout: "2+kk",
+cellar: true,
+balcony: true,
+elevator: true,
+metro: 586,
+tram: 220
+},
+
+{
+id: 3,
+title: "Nušlova, Praha 5",
+price: 9990000,
+area: 81,
+construction: "panel",
+layout: "3+kk",
+cellar: true,
+balcony: true,
+elevator: true,
+metro: 100,
+tram: 500
+},
+
+{
+id: 4,
+title: "Velvarská, Praha 6",
+price: 6999000,
+area: 47,
+construction: "cihla",
+layout: "atelier",
+cellar: false,
+balcony: false,
+elevator: false,
+metro: 781,
+tram: 131
+}
+
+];
+
+function scoreApartment(a)
+{
+    if (a.construction === "panel")
+    {
+        return {
+            rejected: true,
+            reason: "Panelový dům"
+        };
+    }
+
+    if (a.layout === "atelier")
+    {
+        return {
+            rejected: true,
+            reason: "Ateliér"
+        };
+    }
+
+    let score = 50;
+
+    if (a.metro <= 300) score += 20;
+    else if (a.metro <= 600) score += 15;
+    else if (a.metro <= 1000) score += 10;
+
+    if (a.tram <= 300) score += 10;
+
+    if (a.price < 8000000) score += 15;
+    else if (a.price < 9000000) score += 10;
+
+    if (a.area > 60) score += 10;
+
+    if (a.balcony) score += 10;
+    if (a.cellar) score += 5;
+    if (a.elevator) score += 5;
+
+    return {
+        rejected: false,
+        score: score
+    };
+}
+
+const scored = apartments.map(a => {
+    return {
+        apartment: a,
+        result: scoreApartment(a)
+    };
+});
+
+scored.sort((a,b) => {
+    const sa = a.result.score || 0;
+    const sb = b.result.score || 0;
+    return sb - sa;
+});
+
+const results = document.getElementById("results");
+
+scored.forEach(item => {
+
+    const div = document.createElement("div");
+
+    div.className =
+        "card " +
+        (item.result.rejected ? "rejected" : "accepted");
+
+    if (item.result.rejected)
+    {
+        div.innerHTML = `
+            <h2>${item.apartment.title}</h2>
+            <p>❌ Vyřazeno</p>
+            <p>Důvod: ${item.result.reason}</p>
+        `;
+    }
+    else
+    {
+        div.innerHTML = `
+            <h2>${item.apartment.title}</h2>
+
+            <div class="score">
+                ${item.result.score} bodů
+            </div>
+
+            <p>
+                Cena:
+                ${item.apartment.price.toLocaleString("cs-CZ")} Kč
+            </p>
+
+            <p>
+                Plocha:
+                ${item.apartment.area} m²
+            </p>
+
+            <p>
+                Metro:
+                ${item.apartment.metro} m
+            </p>
+        `;
+    }
+
+    results.appendChild(div);
+});
+
+</script>
+
+</body>
+</html>
