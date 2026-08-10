@@ -1,1 +1,1 @@
-
+print("Collector připraven")
