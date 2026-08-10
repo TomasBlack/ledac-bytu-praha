@@ -5,12 +5,25 @@
 <title>Hledač bytů Praha</title>
 
 <style>
+
 body{
   font-family:Arial,sans-serif;
   max-width:1100px;
   margin:auto;
   padding:20px;
   background:#f4f6f8;
+}
+
+h1{
+  color:#1e3a8a;
+}
+
+.filters{
+  background:white;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:20px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
 .card{
@@ -34,6 +47,16 @@ body{
   font-weight:bold;
   color:green;
 }
+
+button{
+  padding:8px 12px;
+  cursor:pointer;
+}
+
+a{
+  color:#2563eb;
+}
+
 </style>
 
 </head>
@@ -41,9 +64,35 @@ body{
 
 <h1>🏠 Hledač bytů Praha</h1>
 
-<p>
-Data se načítají z apartments.json
-</p>
+<div class="filters">
+
+<label>
+Cena max:
+</label>
+
+<input
+id="priceMax"
+type="number"
+value="10000000">
+
+&nbsp;&nbsp;
+
+<label>
+Plocha min:
+</label>
+
+<input
+id="areaMin"
+type="number"
+value="45">
+
+&nbsp;&nbsp;
+
+<button onclick="loadApartments()">
+Použít filtr
+</button>
+
+</div>
 
 <div id="vysledek">
 Načítám...
@@ -53,35 +102,55 @@ Načítám...
 
 function spocitejSkore(b){
 
-    if(b.construction==="panel"){
+    if(b.construction === "panel"){
         return {
             vyrazen:true,
             duvod:"Panelový dům"
         };
     }
 
-    if(b.layout==="atelier"){
+    if(b.layout === "atelier"){
         return {
             vyrazen:true,
             duvod:"Ateliér"
         };
     }
 
-    let score=50;
+    let score = 50;
 
-    if(b.metro <= 300) score+=20;
-    else if(b.metro <= 600) score+=15;
+    if(b.metro <= 300){
+        score += 20;
+    }
+    else if(b.metro <= 600){
+        score += 15;
+    }
 
-    if(b.tram <= 300) score+=10;
+    if(b.tram <= 300){
+        score += 10;
+    }
 
-    if(b.price < 8000000) score+=15;
-    else if(b.price < 9000000) score+=10;
+    if(b.price < 8000000){
+        score += 15;
+    }
+    else if(b.price < 9000000){
+        score += 10;
+    }
 
-    if(b.area > 60) score+=10;
+    if(b.area > 60){
+        score += 10;
+    }
 
-    if(b.balcony) score+=10;
-    if(b.cellar) score+=5;
-    if(b.elevator) score+=5;
+    if(b.balcony){
+        score += 10;
+    }
+
+    if(b.cellar){
+        score += 5;
+    }
+
+    if(b.elevator){
+        score += 5;
+    }
 
     return {
         vyrazen:false,
@@ -89,249 +158,92 @@ function spocitejSkore(b){
     };
 }
 
+function loadApartments(){
+
 fetch('apartments.json')
-.then(r => r.json())
+.then(response => response.json())
 .then(byty => {
+
+    const priceMax =
+      parseInt(document.getElementById("priceMax").value);
+
+    const areaMin =
+      parseInt(document.getElementById("areaMin").value);
 
     const vysledek =
       document.getElementById("vysledek");
 
-    vysledek.innerHTML="";
+    vysledek.innerHTML = "";
 
-    byty.forEach(b=>{
+    byty
+      .filter(b => b.price <= priceMax)
+      .filter(b => b.area >= areaMin)
+      .forEach(b => {
 
-        const info =
-          spocitejSkore(b);
+        const info = spocitejSkore(b);
 
-        const div =
-          document.createElement("div");
+        const div = document.createElement("div");
 
         if(info.vyrazen){
 
-            div.className =
-              "card bad";
+            div.className = "card bad";
 
             div.innerHTML = `
-            <h3>${b.title}</h3>
+              <h3>${b.title}</h3>
 
-            <p>
-            ❌ Vyřazeno
-            </p>
+              <p>
+                ❌ Vyřazeno
+              </p>
 
-            <p>
-            ${info.duvod}
-            </p>
+              <p>
+                ${info.duvod}
+              </p>
             `;
 
-        }else{
+        } else {
 
-            div.className =
-              "card good";
+            div.className = "card good";
 
             div.innerHTML = `
-            <h3>${b.title}</h3>
+              <h3>${b.title}</h3>
 
-            <div class="score">
-            ${info.score} bodů
-            </div>
+              <div class="score">
+                ${info.score} bodů
+              </div>
 
-            <p>
-            Cena:
-            ${b.price.toLocaleString('cs-CZ')} Kč
-            </p>
+              <p>
+                Cena:
+                ${b.price.toLocaleString('cs-CZ')} Kč
+              </p>
 
-            <p>
-            Plocha:
-            ${b.area} m²
-            </p>
+              <p>
+                Plocha:
+                ${b.area} m²
+              </p>
 
-            <a .url}
-               Otevřít inzerát
-            </a>
+              <p>
+                ${b.url}
+                  Otevřít inzerát
+                </a>
+              </p>
             `;
         }
 
         vysledek.appendChild(div);
 
-    });
+      });
 
 })
-.catch(err => {
+.catch(error => {
 
-    document.getElementById("vysledek")
-      .innerHTML =
+    document.getElementById("vysledek").innerHTML =
       "Chyba při načítání apartments.json";
 
 });
 
-</script>
-
-</body>
-</html>
-
-<head>
-<meta charset="utf-8">
-<title>Hledač bytů Praha</title>
-
-<style>
-body{
-  font-family:Arial,sans-serif;
-  max-width:1100px;
-  margin:auto;
-  padding:20px;
-  background:#f4f6f8;
 }
 
-.card{
-  background:white;
-  margin:10px 0;
-  padding:15px;
-  border-radius:10px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-.good{
-  border-left:6px solid green;
-}
-
-.bad{
-  border-left:6px solid red;
-}
-
-.score{
-  font-size:24px;
-  font-weight:bold;
-  color:green;
-}
-</style>
-
-</head>
-<body>
-
-<h1>🏠 Hledač bytů Praha</h1>
-
-<p>
-Data se načítají z apartments.json
-</p>
-
-<div id="vysledek">
-Načítám...
-</div>
-
-<script>
-
-function spocitejSkore(b){
-
-    if(b.construction==="panel"){
-        return {
-            vyrazen:true,
-            duvod:"Panelový dům"
-        };
-    }
-
-    if(b.layout==="atelier"){
-        return {
-            vyrazen:true,
-            duvod:"Ateliér"
-        };
-    }
-
-    let score=50;
-
-    if(b.metro <= 300) score+=20;
-    else if(b.metro <= 600) score+=15;
-
-    if(b.tram <= 300) score+=10;
-
-    if(b.price < 8000000) score+=15;
-    else if(b.price < 9000000) score+=10;
-
-    if(b.area > 60) score+=10;
-
-    if(b.balcony) score+=10;
-    if(b.cellar) score+=5;
-    if(b.elevator) score+=5;
-
-    return {
-        vyrazen:false,
-        score:score
-    };
-}
-
-fetch('apartments.json')
-.then(r => r.json())
-.then(byty => {
-
-    const vysledek =
-      document.getElementById("vysledek");
-
-    vysledek.innerHTML="";
-
-    byty.forEach(b=>{
-
-        const info =
-          spocitejSkore(b);
-
-        const div =
-          document.createElement("div");
-
-        if(info.vyrazen){
-
-            div.className =
-              "card bad";
-
-            div.innerHTML = `
-            <h3>${b.title}</h3>
-
-            <p>
-            ❌ Vyřazeno
-            </p>
-
-            <p>
-            ${info.duvod}
-            </p>
-            `;
-
-        }else{
-
-            div.className =
-              "card good";
-
-            div.innerHTML = `
-            <h3>${b.title}</h3>
-
-            <div class="score">
-            ${info.score} bodů
-            </div>
-
-            <p>
-            Cena:
-            ${b.price.toLocaleString('cs-CZ')} Kč
-            </p>
-
-            <p>
-            Plocha:
-            ${b.area} m²
-            </p>
-
-            <a .url}
-               Otevřít inzerát
-            </a>
-            `;
-        }
-
-        vysledek.appendChild(div);
-
-    });
-
-})
-.catch(err => {
-
-    document.getElementById("vysledek")
-      .innerHTML =
-      "Chyba při načítání apartments.json";
-
-});
+loadApartments();
 
 </script>
 
