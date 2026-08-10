@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Hledač bytů Praha</title>
+
+<style>
+body{
+  font-family:Arial,sans-serif;
+  max-width:1000px;
+  margin:auto;
+  padding:20px;
+  background:#f4f6f8;
+}
+
+.card{
+  background:white;
+  margin:10px 0;
+  padding:15px;
+  border-radius:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+.good{
+  border-left:6px solid green;
+}
+
+.bad{
+  border-left:6px solid red;
+}
+</style>
+
+</head>
+<body>
+
+<h1>🏠 Hledač bytů Praha</h1>
+
+<div id="vysledek"></div>
+
+<script>
+
+const byty = [
+
+{
+nazev:"Špitálská",
+body:100,
+stav:"good"
+},
+
+{
+nazev:"Sousedíkova",
+body:95,
+stav:"good"
+},
+
+{
+nazev:"Nušlova",
+body:0,
+stav:"bad",
+duvod:"Panelový dům"
+},
+
+{
+nazev:"Velvarská",
+body:0,
+stav:"bad",
+duvod:"Ateliér"
+}
+
+];
+
+const div=document.getElementById("vysledek");
+
+byty.forEach(b=>{
+
+const card=document.createElement("div");
+
+card.className="card "+b.stav;
+
+if(b.stav==="good"){
+
+card.innerHTML=`
+<h3>${b.nazev}</h3>
+<p><strong>${b.body} bodů</strong></p>
+`;
+
+}
+else{
+
+card.innerHTML=`
+<h3>${b.nazev}</h3>
+<p>❌ Vyřazeno</p>
+<p>${b.duvod}</p>
+`;
+
+}
+
+div.appendChild(card);
+
+});
+
+</script>
+
+</body>
+</html>
