@@ -27,7 +27,7 @@ h1 {
 
 .card {
     background: white;
-    margin: 10px 0;
+    margin: 12px 0;
     padding: 15px;
     border-radius: 10px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -42,18 +42,19 @@ h1 {
 }
 
 .score {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
     color: green;
+    margin: 10px 0;
 }
 
-a {
-    color: #2563eb;
-    text-decoration: none;
+ul {
+    margin-top: 8px;
 }
 
-button {
-    padding: 8px 12px;
+.section-title {
+    margin-top: 30px;
+    color: #374151;
 }
 </style>
 </head>
@@ -80,9 +81,11 @@ Použít filtr
 
 </div>
 
-<div id="vysledek">
-Načítám...
-</div>
+<h2 class="section-title">✅ Doporučené byty</h2>
+<div id="doporučene"></div>
+
+<h2 class="section-title">❌ Vyřazené byty</h2>
+<div id="vyrazene"></div>
 
 <script>
 
@@ -103,131 +106,13 @@ function spocitejSkore(b){
     }
 
     let score = 50;
+    let duvody = [];
 
     if(b.metro_distance_m <= 300){
         score += 20;
-    } else if(b.metro_distance_m <= 600){
+        duvody.push("+20 Metro do 300 m");
+    }
+    else if(b.metro_distance_m <= 600){
         score += 15;
+        duvody.push("+15 Metro do 600 m");
     }
-
-    if(b.tram_distance_m <= 300){
-        score += 10;
-    }
-
-    if(b.price < 8000000){
-        score += 15;
-    } else if(b.price < 9000000){
-        score += 10;
-    }
-
-    if(b.area_m2 > 60){
-        score += 10;
-    }
-
-    if(b.balcony){
-        score += 10;
-    }
-
-    if(b.cellar){
-        score += 5;
-    }
-
-    if(b.elevator){
-        score += 5;
-    }
-
-    return {
-        vyrazen: false,
-        score: score
-    };
-}
-
-function loadApartments(){
-
-    fetch('./apartments.json')
-    .then(response => response.json())
-    .then(byty => {
-
-        const priceMax =
-            parseInt(document.getElementById("priceMax").value);
-
-        const areaMin =
-            parseInt(document.getElementById("areaMin").value);
-
-        const vysledek =
-            document.getElementById("vysledek");
-
-        vysledek.innerHTML = "";
-
-        byty
-        .filter(b => b.price <= priceMax)
-        .filter(b => b.area_m2 >= areaMin)
-        .forEach(b => {
-
-            const info = spocitejSkore(b);
-
-            const div = document.createElement("div");
-
-            if(info.vyrazen){
-
-                div.className = "card bad";
-
-                div.innerHTML = `
-                    <h3>${b.title}</h3>
-                    <p>❌ Vyřazeno</p>
-                    <p>${info.duvod}</p>
-                `;
-
-            } else {
-
-                div.className = "card good";
-
-                div.innerHTML = `
-                    <h3>${b.title}</h3>
-
-                    <div class="score">
-                        ${info.score} bodů
-                    </div>
-
-                    <p>
-                        Cena:
-                        ${b.price.toLocaleString('cs-CZ')} Kč
-                    </p>
-
-                    <p>
-                        Plocha:
-                        ${b.area_m2} m²
-                    </p>
-
-                    <p>
-                        Metro:
-                        ${b.metro_distance_m} m
-                    </p>
-
-                    <p>
-                        Tram:
-                        ${b.tram_distance_m} m
-                    </p>
-                `;
-            }
-
-            vysledek.appendChild(div);
-
-        });
-
-    })
-    .catch(error => {
-
-        document.getElementById("vysledek").innerHTML =
-            "Chyba při načítání dat: " + error;
-
-    });
-
-}
-
-loadApartments();
-
-</script>
-
-</body>
-</html>
