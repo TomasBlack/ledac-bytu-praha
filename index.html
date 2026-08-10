@@ -116,3 +116,154 @@ function spocitejSkore(b){
         score += 15;
         duvody.push("+15 Metro do 600 m");
     }
+
+    if(b.tram_distance_m <= 300){
+        score += 10;
+        duvody.push("+10 Tramvaj");
+    }
+
+    if(b.price < 8000000){
+        score += 15;
+        duvody.push("+15 Cena pod 8 mil.");
+    }
+    else if(b.price < 9000000){
+        score += 10;
+        duvody.push("+10 Cena pod 9 mil.");
+    }
+
+    if(b.area_m2 > 60){
+        score += 10;
+        duvody.push("+10 Plocha nad 60 m²");
+    }
+
+    if(b.balcony){
+        score += 10;
+        duvody.push("+10 Balkon");
+    }
+
+    if(b.cellar){
+        score += 5;
+        duvody.push("+5 Sklep");
+    }
+
+    if(b.elevator){
+        score += 5;
+        duvody.push("+5 Výtah");
+    }
+
+    return {
+        vyrazen: false,
+        score: score,
+        duvody: duvody
+    };
+}
+
+function loadApartments(){
+
+    fetch('./apartments.json')
+    .then(response => response.json())
+    .then(byty => {
+
+        const priceMax =
+            parseInt(document.getElementById("priceMax").value);
+
+        const areaMin =
+            parseInt(document.getElementById("areaMin").value);
+
+        const doporuceneDiv =
+            document.getElementById("doporučene");
+
+        const vyrazeneDiv =
+            document.getElementById("vyrazene");
+
+        doporuceneDiv.innerHTML = "";
+        vyrazeneDiv.innerHTML = "";
+
+        let doporucene = [];
+        let vyrazene = [];
+
+        byty
+            .filter(b => b.price <= priceMax)
+            .filter(b => b.area_m2 >= areaMin)
+            .forEach(b => {
+
+                const info = spocitejSkore(b);
+
+                if(info.vyrazen){
+                    vyrazene.push({
+                        byt: b,
+                        info: info
+                    });
+                }
+                else{
+                    doporucene.push({
+                        byt: b,
+                        info: info
+                    });
+                }
+            });
+
+        doporucene.sort((a,b) => b.info.score - a.info.score);
+
+        doporucene.forEach(item => {
+
+            const b = item.byt;
+            const info = item.info;
+
+            const div = document.createElement("div");
+
+            div.className = "card good";
+
+            div.innerHTML = `
+                <h3>${b.title}</h3>
+
+                <div class="score">
+                    ${info.score} bodů
+                </div>
+
+                <p><strong>Cena:</strong>
+                ${b.price.toLocaleString('cs-CZ')} Kč</p>
+
+                <p><strong>Plocha:</strong>
+                ${b.area_m2} m²</p>
+
+                <p><strong>Metro:</strong>
+                ${b.metro_distance_m} m</p>
+
+                <p><strong>Tramvaj:</strong>
+                ${b.tram_distance_m} m</p>
+
+                <p><strong>Důvody skóre:</strong></p>
+
+                <ul>
+                    ${info.duvody.map(d => `<li>${d}</li>`).join("")}
+                </ul>
+            `;
+
+            doporuceneDiv.appendChild(div);
+        });
+
+        vyrazene.forEach(item => {
+
+            const div = document.createElement("div");
+
+            div.className = "card bad";
+
+            div.innerHTML = `
+                <h3>${item.byt.title}</h3>
+                <p>❌ Vyřazeno</p>
+                <p>${item.info.duvod}</p>
+            `;
+
+            vyrazeneDiv.appendChild(div);
+        });
+
+    });
+}
+
+loadApartments();
+
+</script>
+
+</body>
+</html>
