@@ -7,7 +7,7 @@
 <style>
 body{
   font-family:Arial,sans-serif;
-  max-width:1000px;
+  max-width:1100px;
   margin:auto;
   padding:20px;
   background:#f4f6f8;
@@ -28,6 +28,12 @@ body{
 .bad{
   border-left:6px solid red;
 }
+
+.score{
+  font-size:24px;
+  font-weight:bold;
+  color:green;
+}
 </style>
 
 </head>
@@ -35,67 +41,295 @@ body{
 
 <h1>🏠 Hledač bytů Praha</h1>
 
-<div id="vysledek"></div>
+<p>
+Data se načítají z apartments.json
+</p>
+
+<div id="vysledek">
+Načítám...
+</div>
 
 <script>
 
-const byty = [
+function spocitejSkore(b){
 
-{
-nazev:"Špitálská",
-body:100,
-stav:"good"
-},
+    if(b.construction==="panel"){
+        return {
+            vyrazen:true,
+            duvod:"Panelový dům"
+        };
+    }
 
-{
-nazev:"Sousedíkova",
-body:95,
-stav:"good"
-},
+    if(b.layout==="atelier"){
+        return {
+            vyrazen:true,
+            duvod:"Ateliér"
+        };
+    }
 
-{
-nazev:"Nušlova",
-body:0,
-stav:"bad",
-duvod:"Panelový dům"
-},
+    let score=50;
 
-{
-nazev:"Velvarská",
-body:0,
-stav:"bad",
-duvod:"Ateliér"
+    if(b.metro <= 300) score+=20;
+    else if(b.metro <= 600) score+=15;
+
+    if(b.tram <= 300) score+=10;
+
+    if(b.price < 8000000) score+=15;
+    else if(b.price < 9000000) score+=10;
+
+    if(b.area > 60) score+=10;
+
+    if(b.balcony) score+=10;
+    if(b.cellar) score+=5;
+    if(b.elevator) score+=5;
+
+    return {
+        vyrazen:false,
+        score:score
+    };
 }
 
-];
+fetch('apartments.json')
+.then(r => r.json())
+.then(byty => {
 
-const div=document.getElementById("vysledek");
+    const vysledek =
+      document.getElementById("vysledek");
 
-byty.forEach(b=>{
+    vysledek.innerHTML="";
 
-const card=document.createElement("div");
+    byty.forEach(b=>{
 
-card.className="card "+b.stav;
+        const info =
+          spocitejSkore(b);
 
-if(b.stav==="good"){
+        const div =
+          document.createElement("div");
 
-card.innerHTML=`
-<h3>${b.nazev}</h3>
-<p><strong>${b.body} bodů</strong></p>
-`;
+        if(info.vyrazen){
 
+            div.className =
+              "card bad";
+
+            div.innerHTML = `
+            <h3>${b.title}</h3>
+
+            <p>
+            ❌ Vyřazeno
+            </p>
+
+            <p>
+            ${info.duvod}
+            </p>
+            `;
+
+        }else{
+
+            div.className =
+              "card good";
+
+            div.innerHTML = `
+            <h3>${b.title}</h3>
+
+            <div class="score">
+            ${info.score} bodů
+            </div>
+
+            <p>
+            Cena:
+            ${b.price.toLocaleString('cs-CZ')} Kč
+            </p>
+
+            <p>
+            Plocha:
+            ${b.area} m²
+            </p>
+
+            <a .url}
+               Otevřít inzerát
+            </a>
+            `;
+        }
+
+        vysledek.appendChild(div);
+
+    });
+
+})
+.catch(err => {
+
+    document.getElementById("vysledek")
+      .innerHTML =
+      "Chyba při načítání apartments.json";
+
+});
+
+</script>
+
+</body>
+</html>
+
+<head>
+<meta charset="utf-8">
+<title>Hledač bytů Praha</title>
+
+<style>
+body{
+  font-family:Arial,sans-serif;
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+  background:#f4f6f8;
 }
-else{
 
-card.innerHTML=`
-<h3>${b.nazev}</h3>
-<p>❌ Vyřazeno</p>
-<p>${b.duvod}</p>
-`;
-
+.card{
+  background:white;
+  margin:10px 0;
+  padding:15px;
+  border-radius:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
-div.appendChild(card);
+.good{
+  border-left:6px solid green;
+}
+
+.bad{
+  border-left:6px solid red;
+}
+
+.score{
+  font-size:24px;
+  font-weight:bold;
+  color:green;
+}
+</style>
+
+</head>
+<body>
+
+<h1>🏠 Hledač bytů Praha</h1>
+
+<p>
+Data se načítají z apartments.json
+</p>
+
+<div id="vysledek">
+Načítám...
+</div>
+
+<script>
+
+function spocitejSkore(b){
+
+    if(b.construction==="panel"){
+        return {
+            vyrazen:true,
+            duvod:"Panelový dům"
+        };
+    }
+
+    if(b.layout==="atelier"){
+        return {
+            vyrazen:true,
+            duvod:"Ateliér"
+        };
+    }
+
+    let score=50;
+
+    if(b.metro <= 300) score+=20;
+    else if(b.metro <= 600) score+=15;
+
+    if(b.tram <= 300) score+=10;
+
+    if(b.price < 8000000) score+=15;
+    else if(b.price < 9000000) score+=10;
+
+    if(b.area > 60) score+=10;
+
+    if(b.balcony) score+=10;
+    if(b.cellar) score+=5;
+    if(b.elevator) score+=5;
+
+    return {
+        vyrazen:false,
+        score:score
+    };
+}
+
+fetch('apartments.json')
+.then(r => r.json())
+.then(byty => {
+
+    const vysledek =
+      document.getElementById("vysledek");
+
+    vysledek.innerHTML="";
+
+    byty.forEach(b=>{
+
+        const info =
+          spocitejSkore(b);
+
+        const div =
+          document.createElement("div");
+
+        if(info.vyrazen){
+
+            div.className =
+              "card bad";
+
+            div.innerHTML = `
+            <h3>${b.title}</h3>
+
+            <p>
+            ❌ Vyřazeno
+            </p>
+
+            <p>
+            ${info.duvod}
+            </p>
+            `;
+
+        }else{
+
+            div.className =
+              "card good";
+
+            div.innerHTML = `
+            <h3>${b.title}</h3>
+
+            <div class="score">
+            ${info.score} bodů
+            </div>
+
+            <p>
+            Cena:
+            ${b.price.toLocaleString('cs-CZ')} Kč
+            </p>
+
+            <p>
+            Plocha:
+            ${b.area} m²
+            </p>
+
+            <a .url}
+               Otevřít inzerát
+            </a>
+            `;
+        }
+
+        vysledek.appendChild(div);
+
+    });
+
+})
+.catch(err => {
+
+    document.getElementById("vysledek")
+      .innerHTML =
+      "Chyba při načítání apartments.json";
 
 });
 
