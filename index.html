@@ -5,86 +5,72 @@
 <title>Hledač bytů Praha</title>
 
 <style>
-
-body{
-  font-family:Arial,sans-serif;
-  max-width:1100px;
-  margin:auto;
-  padding:20px;
-  background:#f4f6f8;
+body {
+    font-family: Arial, sans-serif;
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
+    background: #f4f6f8;
 }
 
-h1{
-  color:#1e3a8a;
+h1 {
+    color: #1e3a8a;
 }
 
-.filters{
-  background:white;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:20px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+.filters {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-.card{
-  background:white;
-  margin:10px 0;
-  padding:15px;
-  border-radius:10px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+.card {
+    background: white;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-.good{
-  border-left:6px solid green;
+.good {
+    border-left: 6px solid green;
 }
 
-.bad{
-  border-left:6px solid red;
+.bad {
+    border-left: 6px solid red;
 }
 
-.score{
-  font-size:24px;
-  font-weight:bold;
-  color:green;
+.score {
+    font-size: 24px;
+    font-weight: bold;
+    color: green;
 }
 
-button{
-  padding:8px 12px;
-  cursor:pointer;
+a {
+    color: #2563eb;
+    text-decoration: none;
 }
 
-a{
-  color:#2563eb;
+button {
+    padding: 8px 12px;
 }
-
 </style>
-
 </head>
+
 <body>
 
 <h1>🏠 Hledač bytů Praha</h1>
 
 <div class="filters">
 
-<label>
-Cena max:
-</label>
-
-<input
-id="priceMax"
-type="number"
-value="10000000">
+<label>Cena max:</label>
+<input id="priceMax" type="number" value="10000000">
 
 &nbsp;&nbsp;
 
-<label>
-Plocha min:
-</label>
-
-<input
-id="areaMin"
-type="number"
-value="45">
+<label>Plocha min:</label>
+<input id="areaMin" type="number" value="45">
 
 &nbsp;&nbsp;
 
@@ -104,15 +90,15 @@ function spocitejSkore(b){
 
     if(b.construction === "panel"){
         return {
-            vyrazen:true,
-            duvod:"Panelový dům"
+            vyrazen: true,
+            duvod: "Panelový dům"
         };
     }
 
     if(b.layout === "atelier"){
         return {
-            vyrazen:true,
-            duvod:"Ateliér"
+            vyrazen: true,
+            duvod: "Ateliér"
         };
     }
 
@@ -120,8 +106,7 @@ function spocitejSkore(b){
 
     if(b.metro <= 300){
         score += 20;
-    }
-    else if(b.metro <= 600){
+    } else if(b.metro <= 600){
         score += 15;
     }
 
@@ -131,8 +116,7 @@ function spocitejSkore(b){
 
     if(b.price < 8000000){
         score += 15;
-    }
-    else if(b.price < 9000000){
+    } else if(b.price < 9000000){
         score += 10;
     }
 
@@ -153,99 +137,68 @@ function spocitejSkore(b){
     }
 
     return {
-        vyrazen:false,
-        score:score
+        vyrazen: false,
+        score: score
     };
 }
 
 function loadApartments(){
 
-fetch('apartments.json')
-.then(response => response.json())
-.then(byty => {
+    fetch('./apartments.json')
+    .then(response => response.json())
+    .then(byty => {
 
-    const priceMax =
-      parseInt(document.getElementById("priceMax").value);
+        const priceMax =
+            parseInt(document.getElementById("priceMax").value);
 
-    const areaMin =
-      parseInt(document.getElementById("areaMin").value);
+        const areaMin =
+            parseInt(document.getElementById("areaMin").value);
 
-    const vysledek =
-      document.getElementById("vysledek");
+        const vysledek =
+            document.getElementById("vysledek");
 
-    vysledek.innerHTML = "";
+        vysledek.innerHTML = "";
 
-    byty
-      .filter(b => b.price <= priceMax)
-      .filter(b => b.area >= areaMin)
-      .forEach(b => {
+        byty
+        .filter(b => b.price <= priceMax)
+        .filter(b => b.area >= areaMin)
+        .forEach(b => {
 
-        const info = spocitejSkore(b);
+            const info = spocitejSkore(b);
 
-        const div = document.createElement("div");
+            const div = document.createElement("div");
 
-        if(info.vyrazen){
+            if(info.vyrazen){
 
-            div.className = "card bad";
+                div.className = "card bad";
 
-            div.innerHTML = `
-              <h3>${b.title}</h3>
+                div.innerHTML = `
+                    <h3>${b.title}</h3>
+                    <p>❌ Vyřazeno</p>
+                    <p>${info.duvod}</p>
+                `;
 
-              <p>
-                ❌ Vyřazeno
-              </p>
+            } else {
 
-              <p>
-                ${info.duvod}
-              </p>
-            `;
+                div.className = "card good";
 
-        } else {
+                div.innerHTML = `
+                    <h3>${b.title}</h3>
 
-            div.className = "card good";
+                    <div class="score">
+                        ${info.score} bodů
+                    </div>
 
-            div.innerHTML = `
-              <h3>${b.title}</h3>
+                    <p>
+                        Cena:
+                        ${b.price.toLocaleString('cs-CZ')} Kč
+                    </p>
 
-              <div class="score">
-                ${info.score} bodů
-              </div>
+                    <p>
+                        Plocha:
+                        ${b.area} m²
+                    </p>
 
-              <p>
-                Cena:
-                ${b.price.toLocaleString('cs-CZ')} Kč
-              </p>
-
-              <p>
-                Plocha:
-                ${b.area} m²
-              </p>
-
-              <p>
-                ${b.url}
-                  Otevřít inzerát
-                </a>
-              </p>
-            `;
-        }
-
-        vysledek.appendChild(div);
-
-      });
-
-})
-.catch(error => {
-
-    document.getElementById("vysledek").innerHTML =
-      "Chyba při načítání apartments.json";
-
-});
-
-}
-
-loadApartments();
-
-</script>
-
-</body>
-</html>
+                    <p>
+                        ${b.url}
+                  
