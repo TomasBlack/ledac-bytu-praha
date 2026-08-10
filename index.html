@@ -203,7 +203,7 @@ function loadApartments(){
                 }
             });
 
-        doporucene.sort((a,b) => b.info.score - a.info.score);
+        doporucene.forEach((item,index) => {
 
         doporucene.forEach(item => {
 
@@ -215,7 +215,7 @@ function loadApartments(){
             div.className = "card good";
 
             div.innerHTML = `
-                <h3>${b.title}</h3>
+                <h3>#${index + 1} ${b.title}</h3>
 
                 <div class="score">
                     ${info.score} bodů
