@@ -41,15 +41,26 @@ h1 {
     border-left: 6px solid red;
 }
 
+.favorite {
+    border-left: 6px solid gold;
+}
+
 .score {
     font-size: 28px;
     font-weight: bold;
     color: green;
-    margin: 10px 0;
 }
 
-ul {
-    margin-top: 8px;
+button {
+    padding: 8px 12px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.favoriteBtn {
+    background: gold;
+    border: none;
+    border-radius: 5px;
 }
 
 .section-title {
@@ -81,27 +92,50 @@ Použít filtr
 
 </div>
 
+<h2 class="section-title">⭐ Oblíbené byty</h2>
+<div id="favorites"></div>
+
 <h2 class="section-title">✅ Doporučené byty</h2>
-<div id="doporučene"></div>
+<div id="recommended"></div>
 
 <h2 class="section-title">❌ Vyřazené byty</h2>
-<div id="vyrazene"></div>
+<div id="rejected"></div>
 
 <script>
+
+function getFavorites(){
+    return JSON.parse(localStorage.getItem("favorites") || "[]");
+}
+
+function saveFavorite(id){
+
+    let favorites = getFavorites();
+
+    if(!favorites.includes(id)){
+        favorites.push(id);
+    }
+
+    localStorage.setItem(
+        "favorites",
+        JSON.stringify(favorites)
+    );
+
+    loadApartments();
+}
 
 function spocitejSkore(b){
 
     if(b.construction === "panel"){
         return {
-            vyrazen: true,
-            duvod: "Panelový dům"
+            vyrazen:true,
+            duvod:"Panelový dům"
         };
     }
 
     if(b.layout === "atelier"){
         return {
-            vyrazen: true,
-            duvod: "Ateliér"
+            vyrazen:true,
+            duvod:"Ateliér"
         };
     }
 
@@ -152,113 +186,147 @@ function spocitejSkore(b){
     }
 
     return {
-        vyrazen: false,
-        score: score,
-        duvody: duvody
+        vyrazen:false,
+        score:score,
+        duvody:duvody
     };
 }
 
 function loadApartments(){
 
-    fetch('./apartments.json')
-    .then(response => response.json())
-    .then(byty => {
+fetch('./apartments.json')
+.then(response => response.json())
+.then(byty => {
 
-        const priceMax =
-            parseInt(document.getElementById("priceMax").value);
+    const favorites =
+      getFavorites();
 
-        const areaMin =
-            parseInt(document.getElementById("areaMin").value);
+    const recommendedDiv =
+      document.getElementById("recommended");
 
-        const doporuceneDiv =
-            document.getElementById("doporučene");
+    const rejectedDiv =
+      document.getElementById("rejected");
 
-        const vyrazeneDiv =
-            document.getElementById("vyrazene");
+    const favoritesDiv =
+      document.getElementById("favorites");
 
-        doporuceneDiv.innerHTML = "";
-        vyrazeneDiv.innerHTML = "";
+    recommendedDiv.innerHTML = "";
+    rejectedDiv.innerHTML = "";
+    favoritesDiv.innerHTML = "";
 
-        let doporucene = [];
-        let vyrazene = [];
+    const priceMax =
+      parseInt(document.getElementById("priceMax").value);
 
-        byty
-            .filter(b => b.price <= priceMax)
-            .filter(b => b.area_m2 >= areaMin)
-            .forEach(b => {
+    const areaMin =
+      parseInt(document.getElementById("areaMin").value);
 
-                const info = spocitejSkore(b);
+    let recommended = [];
+    let rejected = [];
 
-                if(info.vyrazen){
-                    vyrazene.push({
-                        byt: b,
-                        info: info
-                    });
-                }
-                else{
-                    doporucene.push({
-                        byt: b,
-                        info: info
-                    });
-                }
+    byty
+      .filter(b => b.price <= priceMax)
+      .filter(b => b.area_m2 >= areaMin)
+      .forEach(b => {
+
+        const info =
+          spocitejSkore(b);
+
+        if(info.vyrazen){
+
+            rejected.push({
+                byt:b,
+                info:info
             });
 
-        doporucene.forEach((item,index) => {
+        } else {
 
-        doporucene.forEach(item => {
+            recommended.push({
+                byt:b,
+                info:info
+            });
 
-            const b = item.byt;
-            const info = item.info;
+        }
 
-            const div = document.createElement("div");
+      });
 
-            div.className = "card good";
+    recommended.sort(
+      (a,b) => b.info.score - a.info.score
+    );
 
-            div.innerHTML = `
-                <h3>#${index + 1} ${b.title}</h3>
+    recommended.forEach((item,index) => {
 
-                <div class="score">
-                    ${info.score} bodů
-                </div>
+        const b = item.byt;
+        const info = item.info;
 
-                <p><strong>Cena:</strong>
-                ${b.price.toLocaleString('cs-CZ')} Kč</p>
+        const card =
+          document.createElement("div");
 
-                <p><strong>Plocha:</strong>
-                ${b.area_m2} m²</p>
+        card.className =
+          "card good";
 
-                <p><strong>Metro:</strong>
-                ${b.metro_distance_m} m</p>
+        card.innerHTML = `
+            <h3>#${index + 1} ${b.title}</h3>
 
-                <p><strong>Tramvaj:</strong>
-                ${b.tram_distance_m} m</p>
+            <div class="score">
+                ${info.score} bodů
+            </div>
 
-                <p><strong>Důvody skóre:</strong></p>
+            <p>
+                Cena:
+                ${b.price.toLocaleString('cs-CZ')} Kč
+            </p>
 
-                <ul>
-                    ${info.duvody.map(d => `<li>${d}</li>`).join("")}
-                </ul>
-            `;
+            <p>
+                Plocha:
+                ${b.area_m2} m²
+            </p>
 
-            doporuceneDiv.appendChild(div);
-        });
+            <ul>
+                ${info.duvody.map(
+                    d => `<li>${d}</li>`
+                ).join("")}
+            </ul>
 
-        vyrazene.forEach(item => {
+            <button
+               class="favoriteBtn"
+               onclick="saveFavorite(${b.id})">
+               ⭐ Oblíbené
+            </button>
+        `;
 
-            const div = document.createElement("div");
+        recommendedDiv.appendChild(card);
 
-            div.className = "card bad";
+        if(favorites.includes(b.id)){
 
-            div.innerHTML = `
-                <h3>${item.byt.title}</h3>
-                <p>❌ Vyřazeno</p>
-                <p>${item.info.duvod}</p>
-            `;
+            const fav =
+              card.cloneNode(true);
 
-            vyrazeneDiv.appendChild(div);
-        });
+            fav.className =
+              "card favorite";
+
+            favoritesDiv.appendChild(fav);
+        }
 
     });
+
+    rejected.forEach(item => {
+
+        const card =
+          document.createElement("div");
+
+        card.className =
+          "card bad";
+
+        card.innerHTML = `
+            <h3>${item.byt.title}</h3>
+            <p>❌ Vyřazeno</p>
+            <p>${item.info.duvod}</p>
+        `;
+
+        rejectedDiv.appendChild(card);
+    });
+
+});
 }
 
 loadApartments();
