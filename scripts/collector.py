@@ -2,13 +2,18 @@ import json
 
 apartments = [
     {
-        "id": 1,
-        "title": "Testovací byt",
-        "price": 8000000
+        "id": 999,
+        "title": "Byt vytvořený GitHub Action",
+        "price": 12345678
     }
 ]
 
-with open("apartments-generated.json", "w", encoding="utf-8") as f:
+with open(
+    "apartments-generated.json",
+    "w",
+    encoding="utf-8"
+) as f:
+
     json.dump(
         apartments,
         f,
@@ -16,4 +21,4 @@ with open("apartments-generated.json", "w", encoding="utf-8") as f:
         indent=2
     )
 
-print("Soubor apartments-generated.json vytvořen")
+print("apartments-generated.json vytvořen")
