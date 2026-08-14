@@ -11,6 +11,9 @@ with open("sources.json", "r", encoding="utf-8") as f:
 print("URL Sreality:")
 print(sources["sreality_search_url"])
 
+print("Konfigurace:")
+print(config)
+
 apartments = [
     {
         "id": 1,
