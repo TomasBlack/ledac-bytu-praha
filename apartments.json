@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "id": 1,
+    "title": "Test ze sources.json",
+    "price": 8000000,
+    "area_m2": 55,
+    "layout": "2+kk",
+    "construction": "cihla",
+    "metro_distance_m": 200,
+    "tram_distance_m": 100,
+    "balcony": true,
+    "cellar": true,
+    "elevator": true
+  }
+]
