@@ -1,41 +1,32 @@
 import json
-from datetime import datetime
 
 apartments = [
     {
         "id": 999,
         "title": "Byt vytvořený GitHub Action",
         "price": 12345678,
-        "area_m2": 65,
-        "layout": "2+kk",
+        "area_m2": 100,
+        "layout": "3+kk",
         "construction": "cihla",
-        "metro_distance_m": 300,
-        "tram_distance_m": 100,
+        "metro_distance_m": 100,
+        "tram_distance_m": 50,
         "balcony": True,
         "cellar": True,
-        "elevator": True,
-        "source": "collector-test"
+        "elevator": True
     }
 ]
 
-output = {
-    "generated_at": datetime.now().isoformat(),
-    "count": len(apartments),
-    "apartments": apartments
-}
-
 with open(
-    "apartments-generated.json",
+    "apartments.json",
     "w",
     encoding="utf-8"
 ) as f:
+
     json.dump(
-        output,
+        apartments,
         f,
         ensure_ascii=False,
         indent=2
     )
 
-print(
-    f"Vygenerováno {len(apartments)} bytů"
-)
+print("apartments.json vytvořen")
