@@ -1,0 +1,11 @@
+{
+  "city": "Praha",
+  "max_price": 10000000,
+  "min_area": 45,
+  "layouts": [
+    "2+kk",
+    "2+1",
+    "3+kk",
+    "3+1"
+  ]
+}
