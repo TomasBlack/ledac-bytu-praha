@@ -5,28 +5,24 @@ print("Načítám konfiguraci...")
 with open("config.json", "r", encoding="utf-8") as f:
     config = json.load(f)
 
-print()
+with open("sources.json", "r", encoding="utf-8") as f:
+    sources = json.load(f)
 
-for source in config["sources"]:
-    print(f"Zdroj: {source['name']}")
-    print(f"URL: {source['url']}")
-    print()
+print("URL Sreality:")
+print(sources["sreality_search_url"])
 
-output = {
-    "generated": True,
-    "sources": config["sources"]
-}
+apartments = []
 
 with open(
-    "apartments-generated.json",
+    "apartments.json",
     "w",
     encoding="utf-8"
 ) as f:
     json.dump(
-        output,
+        apartments,
         f,
         ensure_ascii=False,
         indent=2
     )
 
-print("apartments-generated.json vytvořen")
+print("apartments.json vytvořen")
